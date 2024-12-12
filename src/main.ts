@@ -9,7 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService); // так мы получаем доступ ко всем методам ConfigService
   // стараемся не использовать глоб. переменные (proccess.env) напрямую, в целях безопасности
-  const port = configService.get('port'); // достаем порт
+  const port = configService.get<number>('port'); // достаем порт
 
   // НАСТРОЙКА ВАЛИДАЦИИ В ПРОЕКТЕ
   app.useGlobalPipes(new ValidationPipe());
