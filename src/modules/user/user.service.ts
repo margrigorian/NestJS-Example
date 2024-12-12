@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { UpdateUserDTO } from './dto/index';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from './models/user.model';
 import * as bcrypt from 'bcrypt';
+import { User } from './models/user.model';
 import { CreateUserDTO } from './dto';
-import { AppError } from 'src/common/errors';
 
 @Injectable()
 export class UserService {
@@ -20,17 +20,32 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDTO): Promise<CreateUserDTO> {
-    const existUser = await this.findUserByEmail(dto.email);
-    // если пользователь с таким email уже существует, пробрасываем ошибку
-    if (existUser) throw new BadRequestException(AppError.USER_EXISTS);
     dto.password = await this.hashPassword(dto.password);
-    // в противном случае будет пройдена регистрация
     await this.userRepository.create({
       firstName: dto.firstName,
       userName: dto.userName,
       email: dto.email,
       password: dto.password,
     });
+    // возвращаться должно это, без пароля
+    // const user = await this.publicUser(dto.email);
     return dto;
+  }
+
+  async publicUser(email: string) {
+    return this.userRepository.findOne({
+      where: { email },
+      attributes: { exclude: ['password'] },
+    });
+  }
+
+  async updateUser(email: string, dto: UpdateUserDTO): Promise<UpdateUserDTO> {
+    await this.userRepository.update(dto, { where: { email } });
+    return dto;
+  }
+
+  async deleteUser(email: string): Promise<boolean> {
+    await this.userRepository.destroy({ where: { email } });
+    return true;
   }
 }
