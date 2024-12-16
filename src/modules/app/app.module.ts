@@ -8,6 +8,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../user/models/user.model';
 import { AuthModule } from '../auth/auth.module';
 import { TokenModule } from '../token/token.module';
+import { WatchList } from '../watchlist/models/watchlist.model';
+import { WatchlistModule } from '../watchlist/watchlist.module';
 
 @Module({
   // forRoot - глобальный доступ, forFeatures - работа внутри модуля
@@ -31,12 +33,13 @@ import { TokenModule } from '../token/token.module';
         database: configService.get('name'),
         synchronize: true,
         autoLoadModels: true,
-        models: [User],
+        models: [User, WatchList],
       }),
     }),
     UserModule,
     AuthModule,
     TokenModule,
+    WatchlistModule,
   ],
   controllers: [AppController],
   providers: [AppService],
