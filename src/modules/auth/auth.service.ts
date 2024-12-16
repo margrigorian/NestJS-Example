@@ -4,7 +4,7 @@ import { UserService } from '../user/user.service';
 import { CreateUserDTO } from '../user/dto';
 import { UserLoginDTO } from './dto';
 import { AppError } from 'src/common/constants/errors';
-import { UserAuthResponse } from './response';
+// import { UserAuthResponse } from './response';
 import { TokenService } from '../token/token.service';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class AuthService {
     return this.userService.createUser(dto);
   }
 
-  async loginUser(dto: UserLoginDTO): Promise<UserAuthResponse> {
+  async loginUser(dto: UserLoginDTO): Promise<any> {
     const isExistingUser = await this.userService.findUserByEmail(dto.email);
     // если пользователь с таким email не существует, пробрасываем ошибку
     if (!isExistingUser)
@@ -35,14 +35,8 @@ export class AuthService {
     // для большей безопасности в обоих случаях стоит использовать единое - INVALID_DATA
     if (!validatedPassword)
       throw new BadRequestException(AppError.INVALID_DATA);
-
-    const userData = {
-      name: isExistingUser.firstName,
-      email: isExistingUser.email,
-    };
-    const token = await this.tokenService.generateJwtToken(userData);
-    // проще ли не делать запрос к БД, а вручную удалять ключ password?
     const user = await this.userService.publicUser(dto.email);
-    return { ...user, token };
+    const token = await this.tokenService.generateJwtToken(user);
+    return { user, token };
   }
 }

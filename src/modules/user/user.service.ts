@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
 import { User } from './models/user.model';
 import { CreateUserDTO } from './dto';
+import { WatchList } from '../watchlist/models/watchlist.model';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,19 @@ export class UserService {
   ) {}
 
   async findUserByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+    try {
+      // проверка работы блока catch
+      // throw new Error('My error');
+      return this.userRepository.findOne({ where: { email } });
+    } catch (e) {
+      // вернет 500 Server Error
+      throw new Error(e);
+
+      // throw new HttpException(
+      //   'Ошибка авторизации',
+      //   HttpStatus.INTERNAL_SERVER_ERROR,
+      // );
+    }
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -20,32 +33,52 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDTO): Promise<CreateUserDTO> {
-    dto.password = await this.hashPassword(dto.password);
-    await this.userRepository.create({
-      firstName: dto.firstName,
-      userName: dto.userName,
-      email: dto.email,
-      password: dto.password,
-    });
-    // возвращаться должно это, без пароля
-    // const user = await this.publicUser(dto.email);
-    return dto;
+    try {
+      dto.password = await this.hashPassword(dto.password);
+      await this.userRepository.create({
+        firstName: dto.firstName,
+        userName: dto.userName,
+        email: dto.email,
+        password: dto.password,
+      });
+      // возвращаться должно это, без пароля
+      // const user = await this.publicUser(dto.email);
+      return dto;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
-  async publicUser(email: string) {
-    return this.userRepository.findOne({
-      where: { email },
-      attributes: { exclude: ['password'] },
-    });
+  async publicUser(email: string): Promise<User> {
+    try {
+      return this.userRepository.findOne({
+        where: { email },
+        attributes: { exclude: ['password'] },
+        include: {
+          model: WatchList,
+          required: false, // параметр будет необязательным, в случае, если watchlist нет
+        },
+      });
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async updateUser(email: string, dto: UpdateUserDTO): Promise<UpdateUserDTO> {
-    await this.userRepository.update(dto, { where: { email } });
-    return dto;
+    try {
+      await this.userRepository.update(dto, { where: { email } });
+      return dto;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async deleteUser(email: string): Promise<boolean> {
-    await this.userRepository.destroy({ where: { email } });
-    return true;
+    try {
+      await this.userRepository.destroy({ where: { email } });
+      return true;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }
