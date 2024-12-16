@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDTO } from '../user/dto';
 import { UserLoginDTO } from './dto';
@@ -21,7 +21,8 @@ export class AuthController {
   @ApiTags('API')
   @ApiResponse({ status: 200, type: UserAuthResponse })
   @Post('login')
-  login(@Body() dto: UserLoginDTO): Promise<any> {
+  @HttpCode(200) // настройка код-статуса, иначе по-умолчанию будет направлен 201
+  login(@Body() dto: UserLoginDTO): Promise<UserAuthResponse> {
     return this.authService.loginUser(dto);
   }
 

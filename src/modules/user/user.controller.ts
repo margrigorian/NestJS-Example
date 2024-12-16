@@ -30,7 +30,7 @@ export class UserController {
   }
 
   @ApiTags('API')
-  // @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200 })
   @UseGuards(JwtAuthGuard)
   @Delete()
   deleteUser(@Req() request): Promise<boolean> {

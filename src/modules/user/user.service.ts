@@ -12,7 +12,7 @@ export class UserService {
     @InjectModel(User) private readonly userRepository: typeof User,
   ) {}
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<User> {
     try {
       // проверка работы блока catch
       // throw new Error('My error');
@@ -41,8 +41,6 @@ export class UserService {
         email: dto.email,
         password: dto.password,
       });
-      // возвращаться должно это, без пароля
-      // const user = await this.publicUser(dto.email);
       return dto;
     } catch (e) {
       throw new Error(e);

@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { WatchList } from './models/watchlist.model';
 import { AssetDTO } from './dto';
@@ -41,7 +45,8 @@ export class WatchlistService {
 
       // попытка обработать ошибку, если удаление не случилось
       if (isDeletedAsset === 0) {
-        throw new Error('Action cannot be performed');
+        // возможно ли более конкретное определение ошибки - 404 или 403?
+        throw new BadRequestException('Action cannot be performed');
       } else {
         return true;
       }
@@ -53,9 +58,12 @@ export class WatchlistService {
       //   // Ошибка аутентификации
       //   throw new HttpException('Authentication error', HttpStatus.FORBIDDEN);
       // }
-      console.log(e);
-      // возможно ли более конкретное определение ошибки - 404 или 403?
-      throw new Error(AppError.ASSET_DELETION);
+
+      if (e instanceof BadRequestException) {
+        throw new BadRequestException(AppError.ASSET_DELETION);
+      } else {
+        throw new InternalServerErrorException(e);
+      }
     }
   }
 }

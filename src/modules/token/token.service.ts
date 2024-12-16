@@ -15,7 +15,7 @@ export class TokenService {
       const payload = { user };
       return this.jwtService.sign(payload, {
         secret: this.configService.get<string>('secret_jwt'),
-        expiresIn: this.configService.get<number>('expire_jwt'),
+        expiresIn: this.configService.get<string>('expire_jwt'),
       });
     } catch (e) {
       throw new Error(e);
