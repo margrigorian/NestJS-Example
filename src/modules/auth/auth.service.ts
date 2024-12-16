@@ -4,8 +4,8 @@ import { UserService } from '../user/user.service';
 import { CreateUserDTO } from '../user/dto';
 import { UserLoginDTO } from './dto';
 import { AppError } from 'src/common/constants/errors';
-// import { UserAuthResponse } from './response';
 import { TokenService } from '../token/token.service';
+import { UserAuthResponse } from './response';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +22,7 @@ export class AuthService {
     return this.userService.createUser(dto);
   }
 
-  async loginUser(dto: UserLoginDTO): Promise<any> {
+  async loginUser(dto: UserLoginDTO): Promise<UserAuthResponse> {
     const isExistingUser = await this.userService.findUserByEmail(dto.email);
     // если пользователь с таким email не существует, пробрасываем ошибку
     if (!isExistingUser)
